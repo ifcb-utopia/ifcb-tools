@@ -26,8 +26,7 @@ if ismember('Validated', data.Properties.VariableNames)
 end
 
 n = height(data);
-% for i=progress(1:n, 'Title', 'Reading SCI')
-for i=1:n
+for i=progress(1:n, 'Title', 'Reading SCI')
   bin_name = data.BinId{i};
   % Skip missing files
   if ~isfile([path_to_sci_dir filesep bin_name '_sci.csv'])
