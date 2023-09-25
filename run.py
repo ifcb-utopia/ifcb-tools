@@ -9,22 +9,23 @@ Processing Parameters
 
 # Path to data
 root = '/Users/alisonchase/Dropbox/UTOPIA'
-path_to_raw_data = os.path.join(root, 'test/raw')
-path_to_metadata = os.path.join(root, 'test/metadata.csv')
+rootdata = '/Users/alisonchase/Documents/IFCB'
+path_to_raw_data = os.path.join(rootdata, 'EXPORTS02/IFCB_107/raw')
+path_to_metadata = os.path.join(rootdata, 'EXPORTS02/IFCB107.EXPORTS-NA.metadata.csv')
 path_to_ecotaxa = os.path.join(root, 'to_ecotaxa')
 path_to_taxonomic_grouping_csv = os.path.join(root, 'taxonomic_grouping_v5.csv')
 # path_to_classification = None  # if classification from EcoTaxa not yet available
-path_to_classification = None #os.path.join(root, 'from_ecotaxa/EcoTaxa_20211031')  # if classification from EcoTaxa is available
-path_to_ml = os.path.join(root, 'test/ml')
-path_to_science = os.path.join(root, 'sci')
-path_to_seabass = os.path.join(root, 'SB_20211031')
+path_to_classification =  os.path.join(rootdata, 'EXPORTS02/from_ecotaxa/export_4901_20230919_2128')  # if classification from EcoTaxa is available
+path_to_ml = os.path.join(rootdata, 'EXPORTS02/ml')
+path_to_science = os.path.join(rootdata, 'EXPORTS02/sci')
+#path_to_seabass = os.path.join(root, 'SB_20211031')
 
 """
 Parameters specific to Scientific Export
 """
-info = {'PROJECT_NAME': 'EXPORTS-NA',
-        'ECOTAXA_EXPORT_DATE': '20211031',
-        'IFCB_RESOLUTION': 2.7488,  # pixels/µm
+info = {'PROJECT_NAME': 'EXPORTS02',
+        'ECOTAXA_EXPORT_DATE': '20230919',
+        'IFCB_RESOLUTION': 3.4,  # pixels/µm
         'CALIBRATED': True,  # if True, apply calibration from pixel to µm using the IFCB_RESOLUTION
         'REMOVED_CONCENTRATED_SAMPLES': False}
 
@@ -81,10 +82,15 @@ ifcb = BinExtractor(path_to_raw_data, path_to_metadata, path_to_classification, 
 # ifcb.run_ecotaxa(output_path=path_to_ecotaxa, bin_list=bin_list,
 #                  acquisition=acquisition_info, process=process_info, url=dashboard_url,
 #                  force=True, update=['process'])
+
 # Prepare IFCB data for Training or Classification with Machine Learning Methods
-# ifcb.run_machine_learning(output_path=path_to_ml)
+#ifcb.run_machine_learning(output_path=path_to_ml)
+
 # Prepare IFCB data for Scientific Use
-ifcb.run_science(output_path=path_to_science, bin_list=bin_list, update_classification=True,
+ifcb.run_science(output_path=path_to_science, bin_list=bin_list, update_classification=False,
                  make_matlab_table=True, matlab_table_info=info)
+
 # EXPORT IFCB data to SeaBASS
 # BinExtractor.run_seabass(path_to_science, path_to_seabass, seabass_metadata)
+
+# Predict image taxonomic/categorical labels: run predictLabels.py from the command line
