@@ -7,7 +7,8 @@ function [data] = importSCI(path_to_sci_dir)
 
 % Read Metadata
 data = readtable([path_to_sci_dir filesep 'metadata.csv']);
-data.DateTime = datenum(data.DateTime, 'yyyy/mm/dd HH:MM:SS');
+data.DateTime = datenum(data.DateTime);%, 'yyyy/mm/dd HH:MM:SS');
+%data.DateTime = data.dt;
 data.Type = categorical(data.Type);
 if ismember('Reference', data.Properties.VariableNames)
   data.Reference = categorical(strrep(data.Reference, 'NaN', ''));
@@ -38,12 +39,12 @@ for i=progress(1:n, 'Title', 'Reading SCI')
   if ismember('Status', d.Properties.VariableNames)
     d.Properties.VariableNames{'Status'} = 'AnnotationStatus';
   end
-  list = {'AnnotationStatus','Taxon','Group'};
-  for f=list; f = f{1};
-    if ismember(f, data.Properties.VariableNames)
-      d.(f) = categorical(d.AnnotationStatus);
-    end
-  end
+  % list = {'AnnotationStatus','Taxon','Group'};
+  % for f=list; f = f{1};
+  %   if ismember(f, data.Properties.VariableNames)
+  %     d.(f) = categorical(d.AnnotationStatus);
+  %   end
+  % end
   if ismember('Var1', data.Properties.VariableNames)
     error(['Unlabelled variable: ' data.BinId{i-1}]);
   end

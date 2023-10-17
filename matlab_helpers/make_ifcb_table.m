@@ -266,7 +266,7 @@ fprintf('Types left:\n'); for t=categories(ifcb.Type)'; fprintf('\t- %s\n', t{1}
 %info.TABLE_VERSION = 14;
 info.CREATED = datestr(now(), 'yyyy/mm/dd HH:MM:SS');
 fprintf('Saving MATLAB table ... ');
-save([cfg.path_to_output_table filesep info.PROJECT_NAME '_IFCB_' info.ECOTAXA_EXPORT_DATE], 'ifcb', 'info');%, '-v7.3');
+save([cfg.path_to_output_table filesep info.PROJECT_NAME '_IFCB_' info.ECOTAXA_EXPORT_DATE], 'ifcb', 'info', '-v7.3');
 fprintf('Done\n');
 
 end
