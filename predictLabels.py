@@ -66,12 +66,12 @@ def change_class(row, cd):
         out = l 
     return out
 
-DATA_PATH = '/Users/alisonchase/Documents/IFCB/PEACETIME/ml/'
+DATA_PATH = '/Users/alisonchase/Documents/IFCB/NAAMES/NAAMES_ml/'
 #DATA_PATH = '/Users/alisonchase/Dropbox/UTOPIA/test/ml/'
 MODEL_PATH = '/Users/alisonchase/Dropbox/UTOPIA/ml-workflow/model_ckpt/'
 MODEL = 'model-cnn-v1-b3'
 MODEL_SUMMARY = 'model-summary-cnn-v1-b3.csv'
-OUTPUT_FILE = '/Users/alisonchase/Documents/IFCB/PEACETIME/PEACETIME-predicted-labels-model-cnn-v1-b3.csv'  #'test-predicted-labels-model-cnn-v1-b3.csv'
+OUTPUT_FILE = '/Users/alisonchase/Documents/IFCB/NAAMES/NAAMES-predicted-labels-model-cnn-v1-b3.csv'  #'test-predicted-labels-model-cnn-v1-b3.csv'
 
 """ 
 Build the data from the directory of pngs
