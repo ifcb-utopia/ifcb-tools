@@ -121,16 +121,19 @@ def flag_str_to_int(flag_str):
     flag_int = 0
     for f in flag_str.split(';'):
         f = f.strip()
-        if f == 'corrupted':
+        if f == 'questionable alignment':
+            if not (flag_int & 2**11):
+                flag_int += 2 ** 11
+        elif f == 'corrupted':
             if not (flag_int & 2**10):
                 flag_int += 2 ** 10
         elif f in ('timeoffset', 'time_offset'):
             if not (flag_int & 2**9):
                 flag_int = 2 ** 9
-        elif f in ('bfocus', 'badfocus', 'bad_focus'):
+        elif f in ('bfocus', 'badfocus', 'bad_focus', 'bad focus'):
             if not (flag_int & 2**8):
                 flag_int = 2 ** 8
-        elif f in ('balignment', 'badalignment', 'bad_alignment'):
+        elif f in ('balignment', 'badalignment', 'bad_alignment', 'bad alignment'):
             if not (flag_int & 2**7):
                 flag_int = 2 ** 7
         elif f in ('cvolume', 'customvolume', 'custom_volume', 'custom volume'):
@@ -209,8 +212,8 @@ class BinExtractor:
             path_to_png = os.path.join(write_images_to, bin_name)
             # Open ROI File
             roi = np.fromfile(os.path.join(self.path_to_bin, bin_name + '.roi'), 'uint8')
-            if len(roi) != adc['EndByte'].iloc[-1]:
-                raise CorruptedBin(f'CorruptedBin:{bin_name}: adc end byte is greater than roi size.')
+            #if len(roi) != adc['EndByte'].iloc[-1]:
+            #    raise CorruptedBin(f'CorruptedBin:{bin_name}: adc end byte is greater than roi size.')
             if not os.path.isdir(path_to_png):
                 os.mkdir(path_to_png)
             for d in adc.itertuples():

@@ -152,19 +152,20 @@ end
 %     - 2^8  badFocus (area of particles is affected)
 %     - 2^9  timeOffset: time of IFCB is incorrect
 %     - 2^10 Corrupted (good sample, bad file)
-fprintf('Removing flagged data ... ');
-flags = arrayfun(@(x) find(bitget(x, 1:11))-1, ifcb.Flag, 'UniformOutput', false);
-%if IGNORE_FLUSH_FLAG
-%  fail = cellfun(@(y) any(y == 1 | y == 2 | y == 3 | y == 7 | y == 8 | y == 10), flags);
-%  ifcb(fail,:) = [];
-%  info.FLAGS_TO_REMOVE = [1 2 3 7 8 10];
-%else
-fail = cellfun(@(y) any(y == 1 | y == 2 | y == 3 | y == 5 | y == 7 | y == 8 | y == 10), flags);
-ifcb(fail,:) = [];
-info.FLAGS_TO_REMOVE = [1 2 3 5 7 8 10];
-%end
-info.REMOVED_BINS_FLAGGED = ifcb.BinId(fail);
-fprintf('Done\n');
+%     - 2^11 Questionable alignment (alignment is reasonable but not perfect)
+% fprintf('Removing flagged data ... ');
+% flags = arrayfun(@(x) find(bitget(x, 1:11))-1, ifcb.Flag, 'UniformOutput', false);
+% %if IGNORE_FLUSH_FLAG
+% %  fail = cellfun(@(y) any(y == 1 | y == 2 | y == 3 | y == 7 | y == 8 | y == 10), flags);
+% %  ifcb(fail,:) = [];
+% %  info.FLAGS_TO_REMOVE = [1 2 3 7 8 10];
+% %else
+% fail = cellfun(@(y) any(y == 1 | y == 2 | y == 3 | y == 5 | y == 7 | y == 8 | y == 10), flags);
+% ifcb(fail,:) = [];
+% info.FLAGS_TO_REMOVE = [1 2 3 5 7 8 10];
+% %end
+% info.REMOVED_BINS_FLAGGED = ifcb.BinId(fail);
+% fprintf('Done\n');
 
 %% Remove negative volumes (bug in software)
 sel = ifcb.VolumeSampled < 0 | 5.5 < ifcb.VolumeSampled;

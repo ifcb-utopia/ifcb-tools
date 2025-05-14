@@ -6,11 +6,14 @@ import datetime
 import os
 import zipfile
 import getpass
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+#from requests.packages.urllib3.exceptions import InsecureRequestWarning
+import urllib3
+urllib3.disable_warnings()
+import bs4
 from bs4 import BeautifulSoup
 from time import sleep
 
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+#requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 MAXQUEUESIZE = 5
 
 

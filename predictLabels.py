@@ -66,12 +66,12 @@ def change_class(row, cd):
         out = l 
     return out
 
-DATA_PATH = '/Users/alisonchase/Documents/IFCB/NAAMES/NAAMES_ml/'
+DATA_PATH = '/Users/alisonchase/Documents/IFCB/TaraEuropa/ml/'
 #DATA_PATH = '/Users/alisonchase/Dropbox/UTOPIA/test/ml/'
 MODEL_PATH = '/Users/alisonchase/Dropbox/UTOPIA/ml-workflow/model_ckpt/'
 MODEL = 'model-cnn-v1-b3'
 MODEL_SUMMARY = 'model-summary-cnn-v1-b3.csv'
-OUTPUT_FILE = '/Users/alisonchase/Documents/IFCB/NAAMES/NAAMES-predicted-labels-model-cnn-v1-b3.csv'  #'test-predicted-labels-model-cnn-v1-b3.csv'
+OUTPUT_FILE = '/Users/alisonchase/Documents/IFCB/TaraEuropa/TaraEuropa2024-predicted-labels-model-cnn-v1-b3.csv'  #'test-predicted-labels-model-cnn-v1-b3.csv'
 
 """ 
 Build the data from the directory of pngs
@@ -122,7 +122,7 @@ n_splits = 50
 test_split = np.array_split(image_paths, n_splits)
 test_preds = []
 
-# make predcitions 
+# make predictions 
 
 n = 1
 for df in test_split: 
@@ -138,6 +138,14 @@ for df in test_split:
     pred_frame['image_path'] = df['image_path'].values.tolist()
     top_1 = [np.argmax(i) for i in predictions]
     pred_frame['pred_label'] = top_1
+
+     # Add probabilities for each class
+    for class_idx in range(predictions.shape[1]):
+        pred_frame[f'class_{class_idx}_prob'] = predictions[:, class_idx]
+    
+    # Add max_prob column
+    pred_frame['max_prob'] = np.max(predictions, axis=1)
+   
     test_preds.append(pred_frame)
     print('completed ' + str(n) + ' of ' + str(n_splits) + ' testing subsets')
     n +=1 

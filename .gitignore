@@ -108,3 +108,6 @@ ifcb-analysis*
 DIPUM/
 test/
 data/
+debugging*
+test*
+*zip
