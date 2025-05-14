@@ -26,7 +26,7 @@ import matlab.engine
 from tqdm import tqdm
 
 
-__version__ = '0.3.2'
+__version__ = '0.3.4'
 
 
 ADC_COLUMN_NAMES = ['TriggerId', 'ADCTime', 'SSCIntegrated', 'FLIntegrated', 'PMTC', 'PMTD', 'SSCPeak', 'FLPeak',
@@ -121,8 +121,8 @@ def flag_str_to_int(flag_str):
     flag_int = 0
     for f in flag_str.split(';'):
         f = f.strip()
-        if f == 'questionable alignment':
-            if not (flag_int & 2**11):
+        if f in ('questionable alignment', 'questionable_alignment', 'questionablealignment'):
+            if not (flag_int & 2 ** 11):
                 flag_int += 2 ** 11
         elif f == 'corrupted':
             if not (flag_int & 2**10):
@@ -130,10 +130,10 @@ def flag_str_to_int(flag_str):
         elif f in ('timeoffset', 'time_offset'):
             if not (flag_int & 2**9):
                 flag_int = 2 ** 9
-        elif f in ('bfocus', 'badfocus', 'bad_focus', 'bad focus'):
+        elif f in ('bfocus', 'badfocus', 'bad_focus'):
             if not (flag_int & 2**8):
                 flag_int = 2 ** 8
-        elif f in ('balignment', 'badalignment', 'bad_alignment', 'bad alignment'):
+        elif f in ('balignment', 'badalignment', 'bad_alignment'):
             if not (flag_int & 2**7):
                 flag_int = 2 ** 7
         elif f in ('cvolume', 'customvolume', 'custom_volume', 'custom volume'):
@@ -189,13 +189,19 @@ class BinExtractor:
             self.matlab_engine.quit()
 
     def extract_images_and_cytometry(self, bin_name, write_images_to=None,
-                                     with_scale_bar=False, scale_bar_resolution=3.4):
+                                     with_scale_bar=False, scale_bar_resolution=3.4, scale_bar_outside=False):
         if with_scale_bar:
             # Prepare Scale Bar
-            sb_height = round(1.2 * scale_bar_resolution)  # pixel
+            sb_height = round(1.2 * scale_bar_resolution)  # pixel (3-4 pixels depending on resolution)
             sb_width = round(10 * scale_bar_resolution)  # um
             sb_offset = 2 + sb_height / 2
-            sb_font = ImageFont.truetype("Times New Roman", 10)  # font is required to anchor text
+            try:
+                sb_font = ImageFont.truetype("Times New Roman", 10)  # font is required to anchor text
+            except OSError:
+                # In case font is not available with OS, import font manually (ttf file must be placed in package)
+                sb_font = ImageFont.truetype("Times New Roman.ttf", 10)  # font is required to anchor text
+                # sb_font = ImageFont.load_default()  # Ultimate work-arround but doesn't support \mu
+            outside_height = 10 + 4 + 2*2  # pixels font size + scale bar height + 2px padding (no padding above txt)
 
         # Parse ADC File
         adc = pd.read_csv(os.path.join(self.path_to_bin, bin_name + '.adc'), names=ADC_COLUMN_NAMES, engine='c',
@@ -212,8 +218,8 @@ class BinExtractor:
             path_to_png = os.path.join(write_images_to, bin_name)
             # Open ROI File
             roi = np.fromfile(os.path.join(self.path_to_bin, bin_name + '.roi'), 'uint8')
-            #if len(roi) != adc['EndByte'].iloc[-1]:
-            #    raise CorruptedBin(f'CorruptedBin:{bin_name}: adc end byte is greater than roi size.')
+            if len(roi) != adc['EndByte'].iloc[-1]:
+                raise CorruptedBin(f'CorruptedBin:{bin_name}: adc end byte is greater than roi size.')
             if not os.path.isdir(path_to_png):
                 os.mkdir(path_to_png)
             for d in adc.itertuples():
@@ -222,13 +228,15 @@ class BinExtractor:
                     img = roi[d.StartByte:d.EndByte].reshape(d.ImageHeight, d.ImageWidth)
                     # Save with ImageIO (slower)
                     # imageio.imwrite(os.path.join(path_to_png, f'{bin_name}_{d.Index:05d}.png', img)
+                    if with_scale_bar and scale_bar_outside:
+                        img = np.append(img, np.zeros((outside_height, d.ImageWidth), dtype='uint8') - 1, axis=0)
                     # Save with PILLOW
                     img = Image.fromarray(img)
                     if with_scale_bar:
                         draw = ImageDraw.Draw(img)
-                        draw.line((2, d.ImageHeight - sb_offset, 2 + sb_width, d.ImageHeight - sb_offset), fill=0,
+                        draw.line((2, img.size[1] - sb_offset, 2 + sb_width, img.size[1] - sb_offset), fill=0,
                                   width=sb_height)
-                        draw.text((2 + sb_width / 2, d.ImageHeight - sb_offset), '10 µm', fill=0, anchor='md',
+                        draw.text((2 + sb_width / 2, img.size[1] - sb_offset), '10 µm', fill=0, anchor='md',
                                   font=sb_font)
                     img.save(os.path.join(path_to_png, f'{bin_name}_{d.Index:05d}.png'), 'PNG')
                     # deprecated image name:  f'{bin_name_parts[1]}{bin_name_parts[0]}P{d.Index:05d}.png'; bin_name_parts = bin_name.split('_')
@@ -399,11 +407,12 @@ class BinExtractor:
             raise ValueError('%s: Non unique bin names in environmental data.' % bin_name)
         return foo.drop(columns={'bin'})
 
-    def get_bin_data(self, bin_name, write_images_to=None, with_scale_bar=False, scale_bar_resolution=3.4,
+    def get_bin_data(self, bin_name, write_images_to=None,
+                     with_scale_bar=False, scale_bar_resolution=3.4, scale_bar_outside=False,
                      feature_level=1):
         # Extract cytometric data, features, clear environmental data, and classification for use in ecological studies
         cytometric_data = self.extract_images_and_cytometry(bin_name, write_images_to, with_scale_bar,
-                                                            scale_bar_resolution)
+                                                            scale_bar_resolution, scale_bar_outside)
         features = self.extract_features_v4(bin_name, level=feature_level)
         if len(features.index) != len(cytometric_data):
             raise ValueError('%s: Cytometric and features data frames have different sizes.' % bin_name)
@@ -454,7 +463,7 @@ class BinExtractor:
 
     def run_ecotaxa(self, output_path: str, bin_list: list = None,
                     acquisition: dict = {}, process: dict = {}, url: str = '',
-                    force: bool = False, update: list = []):
+                    force: bool = False, update: list = [], scale_bar_outside: bool = True):
         """
         Extract png with scale bar, cytometry, features, instrument configuration, environmental data
         for further validation with EcoTaxa.
@@ -487,6 +496,7 @@ class BinExtractor:
                 try:
                     data = self.get_bin_data(bin_name, write_images_to=output_path, with_scale_bar=True,
                                              scale_bar_resolution=acquisition['resolution_pixel_per_micron'],
+                                             scale_bar_outside=scale_bar_outside,
                                              feature_level=2)
                 except (CorruptedBin, FileNotFoundError) as e:
                     print(e)
@@ -514,8 +524,10 @@ class BinExtractor:
                 et['object_lon'] = env.Longitude.values[0] if not env.Latitude.isna().any() else -68.6704788
                 et['object_date'] = env.DateTime.dt.strftime('%Y%m%d').values[0]
                 et['object_time'] = env.DateTime.dt.strftime('%H%M%S').values[0]
-                et['object_depth_min'] = env.Depth.values[0]
-                et['object_depth_max'] = env.Depth.values[0]
+                if 'Depth' in env.columns:
+                    et['object_depth'] = env.Depth.values[0]
+                elif 'DepthMin' not in env.columns or 'DepthMax' not in env.columns:
+                    raise KeyError('Environmental data requires column "Depth" or "DepthMin" and "DepthMax"')
             if from_raw:
                 # Append all features and cytometry to Object
                 # Done here to add columns in order
