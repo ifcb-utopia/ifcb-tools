@@ -9,23 +9,23 @@ Processing Parameters
 
 # Path to data
 root = '/Users/alisonchase/Dropbox/UTOPIA'
-rootdata = '/Users/alisonchase/Documents/IFCB'
-path_to_raw_data = os.path.join(rootdata, 'KM24-SOPACE/IFCB107')
-path_to_metadata = os.path.join(rootdata, 'KM24-SOPACE/KM24SOPACE_IFCB_metadata.csv')
-#path_to_ecotaxa = os.path.join(root, 'to_ecotaxa')
+rootdata = '/Users/alisonchase/Library/CloudStorage/OneDrive-UW/SalishSea_WOAC/IFCB/April2025'
+path_to_raw_data = os.path.join(rootdata, 'Data/raw')
+path_to_metadata = os.path.join(rootdata, 'ifcb_samples_with_latlon_noFSW.csv')
+path_to_ecotaxa = os.path.join(rootdata, 'to_ecotaxa')
 path_to_taxonomic_grouping_csv = os.path.join(root, 'taxonomic_grouping_v5.csv')
 path_to_classification = None  # if classification from EcoTaxa not yet available
 #path_to_classification =  os.path.join(rootdata, 'EXPORTS02/from_ecotaxa/export_4901_20230919_2128')  # if classification from EcoTaxa is available
-path_to_ml = os.path.join(rootdata, 'KM24-SOPACE/ml')
-path_to_science = os.path.join(rootdata, 'KM24-SOPACE/sci')
+path_to_ml = os.path.join(rootdata, 'ml')
+path_to_science = os.path.join(rootdata, 'sci')
 #path_to_seabass = os.path.join(root, 'SB_20211031')
 
 """
 Parameters specific to Scientific Export
 """
-info = {'PROJECT_NAME': 'KM24-SOPACE',
-        'ECOTAXA_EXPORT_DATE': '20250513',
-        'IFCB_RESOLUTION': 2.7488,  # pixels/µm
+info = {'PROJECT_NAME': 'WOAC_Apr2025',
+        'ECOTAXA_EXPORT_DATE': '20250621',
+        'IFCB_RESOLUTION': 2.7488,  # pixels/µm, specifc to feature extraction version used
         'CALIBRATED': True,  # if True, apply calibration from pixel to µm using the IFCB_RESOLUTION
         'REMOVED_CONCENTRATED_SAMPLES': False}
 
@@ -34,14 +34,14 @@ Parameters specific to EcoTaxa export
 """
 # Image acquisition system informations
 acquisition_info = {'instrument': 'IFCB',
-                    'serial_number': '107',
+                    'serial_number': '216',
                     'resolution_pixel_per_micron': info['IFCB_RESOLUTION']}
 # Information about processing of images
 process_info = {'id': f"ifcb-tools-alichase-{datetime.now().strftime('%Y%m%d')}",
                 'software': 'ifcb-tools', 'software_version': __version__,
                 'author': 'Ali Chase', 'date': datetime.now().strftime('%Y%m%d')}
 # Public IFCB Dashboard URL
-# dashboard_url = 'https://ifcb-data.whoi.edu/timeline?dataset=EXPORTS'
+dashboard_url = 'test'
 # List of bins to image
 bin_list = []  # Process all bins present in metadata file
 # bin_list = ['D20210503T092408_IFCB107', 'D20210506T001620_IFCB107']  # Process selected bins
@@ -79,16 +79,16 @@ ifcb = BinExtractor(path_to_raw_data, path_to_metadata, path_to_classification, 
                     matlab_parallel_flag=True)#, matlab_engine=matlab_engine)
 
 # Prepare IFCB data for EcoTaxa
-# ifcb.run_ecotaxa(output_path=path_to_ecotaxa, bin_list=bin_list,
-#                  acquisition=acquisition_info, process=process_info, url=dashboard_url,
-#                  force=True, update=['process'])
+ifcb.run_ecotaxa(output_path=path_to_ecotaxa, bin_list=bin_list,
+                  acquisition=acquisition_info, process=process_info, url=dashboard_url)#,
+#                  force=True, update=False)  #['process']
 
 # Prepare IFCB data for Training or Classification with Machine Learning Methods
 #ifcb.run_machine_learning(output_path=path_to_ml)
 
 # Prepare IFCB data for Scientific Use
-ifcb.run_science(output_path=path_to_science, bin_list=bin_list, update_classification=True,
-                 make_matlab_table=True, matlab_table_info=info)
+#ifcb.run_science(output_path=path_to_science, bin_list=bin_list, update_classification=True,
+#                 make_matlab_table=True, matlab_table_info=info)
 
 # EXPORT IFCB data to SeaBASS
 # BinExtractor.run_seabass(path_to_science, path_to_seabass, seabass_metadata)

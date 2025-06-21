@@ -171,7 +171,7 @@ class BinExtractor:
             #   the environmental file must be in csv format and the first line must be the column names
             #   one of the column must be named "bin" and contain the bin id: D<yyyymmdd>T<HHMMSS>_IFCB<SN#>
             self.environmental_data = pd.read_csv(path_to_environmental_csv, header=0, engine='c',
-                                                  parse_dates=['DateTime'])
+                                                  parse_dates=['DateTime'],date_format="%m/%d/%y %H:%M:%S")
             if 'bin' not in self.environmental_data:
                 raise ValueError('Missing column bin in environmental data file.')
             if self.environmental_data.Flag.dtypes != int:

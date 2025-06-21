@@ -2,13 +2,13 @@ import os
 import pandas as pd
 
 # Specify the directory path of the raw IFCB data
-directory = '/Users/alisonchase/Documents/IFCB/TaraEuropa/IFCB_raw/2024/'
+directory = '/Users/alisonchase/Library/CloudStorage/OneDrive-UW/SalishSea_WOAC/IFCB/April2025/Data/raw'
 
 # Specify the path to the TSG file
-TSG_file = '/Users/alisonchase/Documents/IFCB/TaraEuropa/TaraEuropa_InLine_TSG_20240219_20240822_Product_v20240917.csv'
+#TSG_file = '/Users/alisonchase/Documents/IFCB/TaraEuropa/TaraEuropa_InLine_TSG_20240219_20240822_Product_v20240917.csv'
 
 # Specific the path for the output metadata file
-output_path = '/Users/alisonchase/Documents/IFCB/TaraEuropa/TaraEuropa-2024-metadata_v2.csv'
+output_path = '/Users/alisonchase/Library/CloudStorage/OneDrive-UW/SalishSea_WOAC/IFCB/April2025/test.csv'
 
 # Get all file names in the directory
 file_names = os.listdir(directory)
@@ -34,16 +34,16 @@ df['Flag'] = 1
 df['Depth'] = 1.5
 
 # Load the TSG text file
-data = pd.read_csv(TSG_file)
-data['dt'] = pd.to_datetime(data['dt'])
-data = data.rename(columns={'dt': 'DateTime'})
+# data = pd.read_csv(TSG_file)
+# data['dt'] = pd.to_datetime(data['dt'])
+# data = data.rename(columns={'dt': 'DateTime'})
 
-data = data.sort_values(by='DateTime')
+# data = data.sort_values(by='DateTime')
 
-tolerance = pd.Timedelta('1 hour')
+# tolerance = pd.Timedelta('1 hour')
 
 # Merge the data based on DateTime and select specific columns
-merged_df = pd.merge_asof(df, data, on='DateTime', direction='nearest', tolerance=tolerance)
+# merged_df = pd.merge_asof(df, data, on='DateTime', direction='nearest', tolerance=tolerance)
 
 # Print the merged DataFrame
 #print(merged_df)
@@ -51,11 +51,11 @@ merged_df = pd.merge_asof(df, data, on='DateTime', direction='nearest', toleranc
 # Print the DataFrame
 #print(df)
 
-columns_to_keep = ['BinId', 'DateTime', 'lat', 'lon', 'sss', 'sst', 'Type', 'Concentration', 'Flag', 'Depth']
-new_df = merged_df[columns_to_keep]
+columns_to_keep = ['BinId', 'DateTime']#, 'lat', 'lon', 'sss', 'sst', 'Type', 'Concentration', 'Flag', 'Depth']
+new_df = df[columns_to_keep]
 
 # Rename the columns based on what is required by subsequent processing codes
-new_df = new_df.rename(columns={'BinId': 'bin', 'lat': 'Latitude', 'lon': 'Longitude', 'sss': 'Salinity', 'sst': 'Temperature'})
+new_df = new_df.rename(columns={'BinId': 'bin'})#, 'lat': 'Latitude', 'lon': 'Longitude', 'sss': 'Salinity', 'sst': 'Temperature'})
 
 print(new_df)
 
